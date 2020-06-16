@@ -8,7 +8,9 @@ to run commands inside.
 
 # Using
 
-Create a Makefile, set the following values;
+Create a Makefile, set the following values (a [template
+Makefile](Makefile.template) is provided);
+
 ```Makefile
 
 # The top directory where environment will be created.
@@ -18,7 +20,7 @@ TOP_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 CONDA_ENV_NAME := conda-env
 
 # A pip `requirements.txt` file.
-# https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+# https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format
 REQUIREMENTS_FILE := requirements.txt
 
 # A conda `environment.yml` file.
@@ -43,7 +45,8 @@ All contributions should be sent as
 
 All software (code, associated documentation, support files, etc) in the
 Project X-Ray repository are licensed under the very permissive
-[ISC Licence](https://opensource.org/licenses/ISC). A copy can be found in the [`LICENSE`](LICENSE) file.
+[ISC Licence](https://opensource.org/licenses/ISC). A copy can be found in the
+[`LICENSE`](LICENSE) file.
 
 All new contributions must also be released under this license.
 
