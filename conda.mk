@@ -82,6 +82,7 @@ CONDA_PYTHON      := $(CONDA_DIR)/bin/python
 CONDA_PKGS_DIR    := $(DOWNLOADS_DIR)/conda-pkgs
 CONDA_PKGS_DEP    := $(CONDA_PKGS_DIR)/urls.txt
 CONDA_ENV_PYTHON  := $(CONDA_DIR)/envs/$(CONDA_ENV_NAME)/bin/python
+CONDA_INSTALLER   := Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
 IN_CONDA_ENV_BASE := source $(CONDA_DIR)/bin/activate &&
 IN_CONDA_ENV      := $(IN_CONDA_ENV_BASE) conda activate $(CONDA_ENV_NAME) &&
 
@@ -91,10 +92,10 @@ $(ENV_DIR): | $(DOWNLOADS_DIR)
 $(DOWNLOADS_DIR):
 	mkdir -p $(DOWNLOADS_DIR)
 
-$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT): | $(DOWNLOADS_DIR)
-	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT) -O $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
+$(DOWNLOADS_DIR)/$(CONDA_INSTALLER): | $(DOWNLOADS_DIR)
+	wget https://repo.anaconda.com/miniconda/$(CONDA_INSTALLER) -O $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
 ifneq ($(OS_FLAG),Windows)
-	chmod a+x $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
+	chmod a+x $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
 endif
 
 $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
@@ -102,8 +103,8 @@ $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	mkdir -p $(CONDA_PKGS_DIR)
 	touch $(CONDA_PKGS_DEP)
 
-$(CONDA_PYTHON): $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
-	$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT) -p $(CONDA_DIR) -b -f
+$(CONDA_PYTHON): $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
+	$(DOWNLOADS_DIR)/$(CONDA_INSTALLER) -p $(CONDA_DIR) -b -f
 	touch $(CONDA_PYTHON)
 
 $(CONDA_DIR)/envs: $(CONDA_PYTHON)
