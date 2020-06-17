@@ -51,7 +51,7 @@ ifeq (,$(OS_FLAG))
     OS_FLAG := Linux
   endif
   ifeq (,$(OS_FLAG))
-    $(error "Unable to discover which OS to download conda for. Set OS_FLAG.")
+    $(error "Unable to discover which OS to download conda from 'uname -s' output of '$(UNAME_S)'. Set OS_FLAG.")
   endif
 endif
 
@@ -60,7 +60,7 @@ ifeq (,$(CPU_FLAG))
   UNAME_M := $(shell uname -m)
   CPU_FLAG := $(UNAME_M)
   ifeq (,$(CPU_FLAG))
-    $(error "Unable to discover which CPU architecture to download conda for. Set CPU_FLAG.")
+    $(error "Unable to discover which CPU architecture to download conda from 'uname -m' output of '$(UNAME_M)'. Set CPU_FLAG.")
   endif
 endif
 
