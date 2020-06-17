@@ -1,9 +1,23 @@
-language: shell
+language: bash
 
 os:
   - linux
   - osx
   - windows
+
+before_install:
+- |-
+    case $TRAVIS_OS_NAME in
+      windows)
+        # Install make
+        choco install make
+        ;;
+      linux)
+        ;;
+      osx)
+        ;;
+    esac
+    make --version
 
 scripts:
   - cd test
