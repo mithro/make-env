@@ -126,6 +126,7 @@ endif
 
 $(CONDA_DIR)/envs: $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_DIR)/envs
+	mkdir -p $(CONDA_DIR)/envs
 
 $(CONDA_ENV_PYTHON): $(ENVIRONMENT_FILE) $(REQUIREMENTS_FILE) | $(CONDA_PYTHON) $(CONDA_DIR)/envs $(CONDA_PKGS_DEP)
 	$(IN_CONDA_ENV_BASE) conda env update --name $(CONDA_ENV_NAME) --file $(ENVIRONMENT_FILE)
