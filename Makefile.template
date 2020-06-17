@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: ISC
 
 # The top directory where environment will be created.
-TOP_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 # Name for the conda environment to be created.
 CONDA_ENV_NAME := conda-env
