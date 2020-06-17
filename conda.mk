@@ -19,10 +19,6 @@ SHELL := /bin/bash
 #    environment.
 
 # Configuration
-ifeq (,$(CONDA_ENV_NAME))
-$(error "Set CONDA_ENV_NAME value before including 'conda.mk'.")
-endif
-
 ifeq (,$(REQUIREMENTS_FILE))
 $(error "Set REQUIREMENTS_FILE value before including 'conda.mk'.")
 endif
@@ -74,6 +70,9 @@ ifeq (,$(CPU_FLAG))
     $(error "Unable to discover which CPU architecture to download conda from 'uname -m' output of '$(UNAME_M)'. Set CPU_FLAG.")
   endif
 endif
+
+# Read the conda environment name from the environment.yml file.
+CONDA_ENV_NAME    := $(shell sed -n -e 's/^name:\s*\(.*\)/\1/p' $(ENVIRONMENT_FILE))
 
 ENV_DIR           := $(TOP_DIR)/env
 CONDA_DIR         := $(ENV_DIR)/conda
@@ -138,6 +137,7 @@ FILTER_TOP = sed -e's@$(TOP_DIR)/@$$TOP_DIR/@'
 env-info:
 	@echo "               Currently running on: '$(OS_FLAG) ($(CPU_FLAG))'"
 	@echo
+	@echo "         Conda environment is named: '$(CONDA_ENV_NAME)'"
 	@echo "   Conda Env Top level directory is: '$(TOP_DIR)'"
 	@echo "         Git top level directory is: '$$(git rev-parse --show-toplevel)'"
 	@echo "              The version number is: '$$(git describe)'"
