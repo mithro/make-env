@@ -93,7 +93,9 @@ $(DOWNLOADS_DIR):
 
 $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT): | $(DOWNLOADS_DIR)
 	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT) -O $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
+ifneq ($(OS_FLAG),Windows)
 	chmod a+x $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
+endif
 
 $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add pkgs_dirs $(CONDA_PKGS_DIR)
