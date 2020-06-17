@@ -46,12 +46,13 @@ ifeq (,$(OS_FLAG))
   endif
 
   # On Cygwin / MINGW use Linux?
-  ifneq (, $(findstring Cygwin, $(UNAME_S)))
-    OS_FLAG := Linux
-  endif
-  ifneq (, $(findstring MINGW, $(UNAME_S)))
-    OS_FLAG := Linux
-  endif
+  # FIXME: Re-enable once this can be tested. See https://github.com/SymbiFlow/conda-env-make/issues/5
+  #ifneq (, $(findstring Cygwin, $(UNAME_S)))
+  #  OS_FLAG := Linux
+  #endif
+  #ifneq (, $(findstring MINGW, $(UNAME_S)))
+  #  OS_FLAG := Linux
+  #endif
 
   ifneq (, $(findstring MSYS_NT, $(UNAME_S)))
     OS_FLAG := Windows
