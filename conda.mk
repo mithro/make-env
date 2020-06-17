@@ -50,7 +50,7 @@ ifeq (,$(OS_FLAG))
   ifneq (, $(findstring MINGW, $(UNAME_S)))
     OS_FLAG := Linux
   endif
-  ifeq(,$(OS_FLAG))
+  ifeq (,$(OS_FLAG))
     $(error "Unable to discover which OS to download conda for. Set OS_FLAG.")
   endif
 endif
@@ -59,7 +59,7 @@ endif
 ifeq (,$(CPU_FLAG))
   UNAME_M := $(shell uname -m)
   CPU_FLAG := $(UNAME_M)
-  ifeq(,$(CPU_FLAG))
+  ifeq (,$(CPU_FLAG))
     $(error "Unable to discover which CPU architecture to download conda for. Set CPU_FLAG.")
   endif
 endif
