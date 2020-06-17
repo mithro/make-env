@@ -2,4 +2,4 @@ name: conda-env
 channels:
   - symbiflow
 dependencies:
-  - yosys
+  - python
