@@ -84,6 +84,9 @@ CONDA_INSTALLER   := Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
 IN_CONDA_ENV_BASE := source $(CONDA_DIR)/bin/activate &&
 IN_CONDA_ENV      := $(IN_CONDA_ENV_BASE) conda activate $(CONDA_ENV_NAME) &&
 
+CONDA_ALWAYS_YES  := 1
+export CONDA_ALWAYS_YES
+
 # Check spaces are not found in important locations
 NULL_STRING :=
 SPACE := $(NULL_STRING) $(NULL_STRING)
@@ -102,19 +105,24 @@ $(DOWNLOADS_DIR):
 	mkdir -p $(DOWNLOADS_DIR)
 
 $(DOWNLOADS_DIR)/$(CONDA_INSTALLER): | $(DOWNLOADS_DIR)
-	wget https://repo.anaconda.com/miniconda/$(CONDA_INSTALLER) -O $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
-ifneq ($(OS_FLAG),Windows)
-	chmod a+x $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
-endif
+	wget https://repo.anaconda.com/miniconda/$(CONDA_INSTALLER) -O $(DOWNLOADS_DIR)/$(CONDA_INSTALLER) 2>&1 | cat
 
 $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add pkgs_dirs $(CONDA_PKGS_DIR)
 	mkdir -p $(CONDA_PKGS_DIR)
 	touch $(CONDA_PKGS_DEP)
 
+ifeq ($(OS_FLAG),Windows)
 $(CONDA_PYTHON): $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
+	mkdir -p $(dir $(CONDA_DIR))
+	start /wait "" $(DOWNLOADS_DIR)/$(CONDA_INSTALLER) /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegister=1 /NoScripts=1 /S /D=$(subst /,\,$(CONDA_DIR))
+	touch $(CONDA_PYTHON)
+else
+$(CONDA_PYTHON): $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
+	chmod a+x $(DOWNLOADS_DIR)/$(CONDA_INSTALLER)
 	$(DOWNLOADS_DIR)/$(CONDA_INSTALLER) -p $(CONDA_DIR) -b -f
 	touch $(CONDA_PYTHON)
+endif
 
 $(CONDA_DIR)/envs: $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_DIR)/envs
