@@ -44,12 +44,19 @@ ifeq (,$(OS_FLAG))
   ifeq ($(UNAME_S), Darwin)
     OS_FLAG := MacOSX
   endif
+
+  # On Cygwin / MINGW use Linux?
   ifneq (, $(findstring Cygwin, $(UNAME_S)))
     OS_FLAG := Linux
   endif
   ifneq (, $(findstring MINGW, $(UNAME_S)))
     OS_FLAG := Linux
   endif
+
+  ifneq (, $(findstring MSYS_NT, $(UNAME_S)))
+    OS_FLAG := Windows
+  endif
+
   ifeq (,$(OS_FLAG))
     $(error "Unable to discover which OS to download conda from 'uname -s' output of '$(UNAME_S)'. Set OS_FLAG.")
   endif
@@ -122,6 +129,8 @@ dist-clean:
 
 FILTER_TOP = sed -e's@$(TOP_DIR)/@$$TOP_DIR/@'
 env-info:
+	@echo "               Currently running on: '$(OS_FLAG) ($(CPU_FLAG))'"
+	@echo
 	@echo "   Conda Env Top level directory is: '$(TOP_DIR)'"
 	@echo "         Git top level directory is: '$$(git rev-parse --show-toplevel)'"
 	@echo "              The version number is: '$$(git describe)'"
