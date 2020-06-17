@@ -40,9 +40,11 @@ ifeq (,$(OS_FLAG))
   UNAME_S := $(shell uname -s)
   ifneq (, $(findstring Linux, $(UNAME_S)))
     OS_FLAG := Linux
+    OS_EXT  := sh
   endif
   ifeq ($(UNAME_S), Darwin)
     OS_FLAG := MacOSX
+    OS_EXT  := sh
   endif
 
   # On Cygwin / MINGW use Linux?
@@ -56,6 +58,7 @@ ifeq (,$(OS_FLAG))
 
   ifneq (, $(findstring MSYS_NT, $(UNAME_S)))
     OS_FLAG := Windows
+    OS_EXT  := exe
   endif
 
   ifeq (,$(OS_FLAG))
@@ -88,17 +91,17 @@ $(ENV_DIR): | $(DOWNLOADS_DIR)
 $(DOWNLOADS_DIR):
 	mkdir -p $(DOWNLOADS_DIR)
 
-$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh: | $(DOWNLOADS_DIR)
-	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh -O $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
-	chmod a+x $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
+$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT): | $(DOWNLOADS_DIR)
+	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT) -O $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
+	chmod a+x $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
 
 $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add pkgs_dirs $(CONDA_PKGS_DIR)
 	mkdir -p $(CONDA_PKGS_DIR)
 	touch $(CONDA_PKGS_DEP)
 
-$(CONDA_PYTHON): $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
-	$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh -p $(CONDA_DIR) -b -f
+$(CONDA_PYTHON): $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
+	$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT) -p $(CONDA_DIR) -b -f
 	touch $(CONDA_PYTHON)
 
 $(CONDA_DIR)/envs: $(CONDA_PYTHON)
