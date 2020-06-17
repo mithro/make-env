@@ -86,6 +86,7 @@ $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh: | $(DOWNLOADS_DIR)
 
 $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add pkgs_dirs $(CONDA_PKGS_DIR)
+	touch $(CONDA_PKGS_DEP)
 
 $(CONDA_PYTHON): $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
 	$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh -p $(CONDA_DIR) -b -f
