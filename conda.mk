@@ -72,8 +72,7 @@ ifeq (,$(CPU_FLAG))
 endif
 
 # Read the conda environment name from the environment.yml file.
-CONDA_ENV_NAME    := $(shell sed -n -e 's/^name:\s*\(.*\)/\1/p' $(ENVIRONMENT_FILE))
-
+CONDA_ENV_NAME    := $(strip $(shell sed -n -e 's/^name:\s*\([^ ]*\)/\1/p' $(ENVIRONMENT_FILE)))
 ENV_DIR           := $(TOP_DIR)/env
 CONDA_DIR         := $(ENV_DIR)/conda
 DOWNLOADS_DIR     := $(ENV_DIR)/downloads
@@ -85,6 +84,17 @@ CONDA_INSTALLER   := Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).$(OS_EXT)
 IN_CONDA_ENV_BASE := source $(CONDA_DIR)/bin/activate &&
 IN_CONDA_ENV      := $(IN_CONDA_ENV_BASE) conda activate $(CONDA_ENV_NAME) &&
 
+# Check spaces are not found in important locations
+NULL_STRING :=
+SPACE := $(NULL_STRING) $(NULL_STRING)
+ifneq ($(CONDA_ENV_NAME),$(subst $(SPACE),?,$(CONDA_ENV_NAME)))
+  $(error "Space not allowed in conda environment name: '$(SPACE)' '$(CONDA_ENV_NAME)' '$(subst $(SPACE),?,$(CONDA_ENV_NAME))'")
+endif
+ifneq ($(TOP_DIR),$(subst $(SPACE),?,$(TOP_DIR)))
+  $(error "Spaces are not allowed in conda directory path: '$(TOP_DIR)'")
+endif
+
+# Rules to download and setup conda
 $(ENV_DIR): | $(DOWNLOADS_DIR)
 	mkdir -p $(ENV_DIR)
 
