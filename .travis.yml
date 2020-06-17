@@ -1,0 +1,11 @@
+language: shell
+
+os:
+  - linux
+  - osx
+  - windows
+
+scripts:
+  - cd test
+  - make env
+  - make env-info
