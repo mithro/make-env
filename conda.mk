@@ -120,9 +120,10 @@ dist-clean:
 
 FILTER_TOP = sed -e's@$(TOP_DIR)/@$$TOP_DIR/@'
 env-info:
-	@echo "             Top level directory is: '$(TOP_DIR)'"
+	@echo "   Conda Env Top level directory is: '$(TOP_DIR)'"
+	@echo "         Git top level directory is: '$$(git rev-parse --show-toplevel)'"
 	@echo "              The version number is: '$$(git describe)'"
-	@echo "            Git repository is using: $$(du -h -s $(TOP_DIR)/.git | sed -e's/\s.*//')" \
+	@echo "            Git repository is using: $$(du -h -s $$(git rev-parse --show-toplevel)/.git | sed -e's/\s.*//')" \
 		| $(FILTER_TOP)
 	@echo
 	@echo "     Environment setup directory is: '$(ENV_DIR)'" \
