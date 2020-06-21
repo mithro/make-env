@@ -1,37 +1,131 @@
-# conda environment Makefile
+# Makefile for create (conda) environments
 
-![Build Status](https://travis-ci.org/SymbiFlow/conda-env-make.svg?branch=master)
-![License](https://img.shields.io/github/license/SymbiFlow/conda-env-make.svg)
+![Build Status](https://travis-ci.org/SymbiFlow/make-env.svg?branch=master)
+![License](https://img.shields.io/github/license/SymbiFlow/make-env.svg)
 
-This repository contains a Makefile to make it easy to set up conda environment
-to run commands inside.
+This repository contains a Makefile to make it easy to set up a conda
+environment and then run commands inside the environment.
 
 # Using
 
-Create a Makefile, set the following values;
+## Step 1 - Add make-env to your repository
+
+### Option 1a -- git submodules
+
+The [`make-env`](https://github.com/SymbiFlow/make-env) git
+repository can be added as a
+[`git submodule`](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
+own git repository.
+
+#### Adding using `git submodule`
+
+```bash
+git submodule add https://github.com/SymbiFlow/make-env.git third_party/make-env
+```
+
+#### Updating using `git submodule`
+
+It is recommended you use an "auto rolling" dependency bot which sends you a
+pull request every time the upstream module moves forward.
+
+```bash
+# TODO: Add stuff here.
+```
+
+
+### Option 1b -- `git subtrees`
+
+The [`make-env`](https://github.com/SymbiFlow/make-env) git
+repository can be directly imported into your repository using
+[`git subtree`](https://www.atlassian.com/git/tutorials/git-subtree).
+
+`git subtree`s offer a number of advantages over `git submodule`s, they
+include;
+
+ * The contents of the subtree are directly included in your own tree, meaning
+   no extra clone nor recursive clone is needed. If the upstream source
+   disappears, you still have a complete copy of the repository contents.
+
+ * Edits can be done and sent upstream easily.
+
+
+#### Adding using `git subtree`
+
+```bash
+git remote add -f make-env https://github.com/SymbiFlow/make-env.git
+git subtree add --prefix third_party/make-env make-env master
+git fetch make-env master
+```
+
+#### Updating using `git subtree`
+
+```bash
+git subtree pull --prefix third_party/make-env make-env master
+```
+
+## Step 2 - Create a Makefile
+
+Create a Makefile which sets;
+ * `TOP_DIR` -- the directory where an `env` directory will be created in.
+ * `REQUIREMENTS_FILE` -- [A pip `requirements.txt` file](https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format).
+ * `ENVIRONMENT_FILE` -- [A conda `environment.yml` file](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
+
+Include the `third_party/make-env/conda.mk` file.
+
+Make your targets depend on `$(CONDA_ENV_PYTHON)` -- probably as an "order only
+dependency".
+
+Use `$(IN_CONDA_ENV)` before the commands you wish to run inside the conda
+environment.
+
+A [template Makefile](Makefile.template) is provided, see below;
+
 ```Makefile
 
 # The top directory where environment will be created.
-TOP_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-
-# Name for the conda environment to be created.
-CONDA_ENV_NAME := conda-env
+TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 # A pip `requirements.txt` file.
-# https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+# https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format
 REQUIREMENTS_FILE := requirements.txt
 
 # A conda `environment.yml` file.
 # https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 ENVIRONMENT_FILE := environment.yml
 
-include third_party/conda-env-make/conda.mk
+include third_party/make-env/conda.mk
+
+# Example make target which runs commands inside the conda environment.
+test-command: | $(CONDA_ENV_PYTHON)
+	@$(IN_CONDA_ENV) echo "Python is $$(which python)"
+	@$(IN_CONDA_ENV) python --version
 ```
 
+# Testing
+
+To make sure that `make-env` continues to work correctly and the template
+Makefile is up to date, an example environment can be found in the test
+directory.
+
+
+```shell
+# core.symlinks=true is needed so windows creates the symlinks.
+git clone -c core.symlinks=true https://github.com/SymbiFlow/make-env.git
+cd make-env/test
+make test-command
+```
+
+# Todo list
+
+ - [ ] Make sure the conda can be disabled and system tooling be used directly.
+ - [ ] Add support for other types of environments;
+   - [ ] Docker provided dependencies.
+   - [ ] System python + virtualenv.
+   - [ ] (maybe?) nix-os provided dependencies
 
 # Contributing
 
-There are a couple of guidelines when contributing to Project X-Ray which are
+There are a couple of guidelines when contributing to this project which are
 listed here.
 
 ### Sending
@@ -43,7 +137,8 @@ All contributions should be sent as
 
 All software (code, associated documentation, support files, etc) in the
 Project X-Ray repository are licensed under the very permissive
-[ISC Licence](https://opensource.org/licenses/ISC). A copy can be found in the [`LICENSE`](LICENSE) file.
+[ISC Licence](https://opensource.org/licenses/ISC). A copy can be found in the
+[`LICENSE`](LICENSE) file.
 
 All new contributions must also be released under this license.
 

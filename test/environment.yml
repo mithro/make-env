@@ -1,0 +1,7 @@
+name: make-env
+channels:
+  - symbiflow
+dependencies:
+  - python
+  - pip:
+    - -r file:requirements.txt

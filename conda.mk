@@ -6,7 +6,11 @@
 #
 # SPDX-License-Identifier:	ISC
 
-SHELL := /bin/bash
+.SUFFIXES:
+
+MAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+SHELL := bash
 
 # Makefile for downloading and creating a conda environment.
 
@@ -19,84 +23,110 @@ SHELL := /bin/bash
 #    environment.
 
 # Configuration
-ifeq (,$(CONDA_ENV_NAME))
-$(error "Set CONDA_ENV_NAME value before including 'conda.mk'.")
-endif
-
-ifeq (,$(REQUIREMENTS_FILE))
-$(error "Set REQUIREMENTS_FILE value before including 'conda.mk'.")
-endif
-
-ifeq (,$(ENVIRONMENT_FILE))
-$(error "Set ENVIRONMENT_FILE value before including 'conda.mk'.")
-endif
-
 ifeq (,$(TOP_DIR))
 $(error "Set TOP_DIR value before including 'conda.mk'.")
 endif
 
-# Detect the operating system
-ifeq (,$(OS_FLAG))
-  UNAME_S := $(shell uname -s)
-  ifneq (, $(findstring Linux, $(UNAME_S)))
-    OS_FLAG := Linux
-  endif
-  ifeq ($(UNAME_S), Darwin)
-    OS_FLAG := MacOSX
-  endif
-  ifneq (, $(findstring Cygwin, $(UNAME_S)))
-    OS_FLAG := Linux
-  endif
-  ifneq (, $(findstring MINGW, $(UNAME_S)))
-    OS_FLAG := Linux
-  endif
-  ifeq(,$(OS_FLAG))
-    $(error "Unable to discover which OS to download conda for. Set OS_FLAG.")
-  endif
+include $(MAKE_DIR)/os.mk
+
+ifeq ($(OS_TYPE),Windows)
+TOP_DIR    := $(subst /,\,$(TOP_DIR))
+OS_EXT     := exe
+PYTHON_BIN := python.exe
+SHELL      := cmd.exe
+CONDA_ENV_NAME_LINE := $(shell findstr "name:" $(ENVIRONMENT_FILE))
+CONDA_ACTIVATE = call $(CONDA_DIR)$(SEP)condabin$(SEP)conda.bat activate
+else
+OS_EXT     := sh
+PYTHON_BIN := bin/python
+SHELL      := bash
+CONDA_ENV_NAME_LINE := $(shell grep "name:" $(ENVIRONMENT_FILE))
+CONDA_ACTIVATE = source $(CONDA_DIR)/bin/activate
 endif
 
-# Detect the CPU architecture
-ifeq (,$(CPU_FLAG))
-  UNAME_M := $(shell uname -m)
-  CPU_FLAG := $(UNAME_M)
-  ifeq(,$(CPU_FLAG))
-    $(error "Unable to discover which CPU architecture to download conda for. Set CPU_FLAG.")
-  endif
+ifeq (,$(REQUIREMENTS_FILE))
+$(error "Set REQUIREMENTS_FILE value before including 'conda.mk'.")
+else
+REQUIREMENTS_FILE := $(abspath $(TOP_DIR)$(SEP)$(REQUIREMENTS_FILE))
 endif
 
-ENV_DIR           := $(TOP_DIR)/env
-CONDA_DIR         := $(ENV_DIR)/conda
-DOWNLOADS_DIR     := $(ENV_DIR)/downloads
-CONDA_PYTHON      := $(CONDA_DIR)/bin/python
-CONDA_PKGS_DIR    := $(DOWNLOADS_DIR)/conda-pkgs
-CONDA_PKGS_DEP    := $(CONDA_PKGS_DIR)/urls.txt
-CONDA_ENV_PYTHON  := $(CONDA_DIR)/envs/$(CONDA_ENV_NAME)/bin/python
-IN_CONDA_ENV_BASE := source $(CONDA_DIR)/bin/activate &&
-IN_CONDA_ENV      := $(IN_CONDA_ENV_BASE) conda activate $(CONDA_ENV_NAME) &&
+ifeq (,$(ENVIRONMENT_FILE))
+$(error "Set ENVIRONMENT_FILE value before including 'conda.mk'.")
+ENVIRONMENT_FILE := $(abspath $(TOP_DIR)$(SEP)$(ENVIRONMENT_FILE))
+endif
 
+CONDA_ENV_NAME    := $(strip $(patsubst name:%,,$(CONDA_ENV_NAME_LINE)))
+
+$(info '$(CONDA_ENV_NAME_LINE)' '$(CONDA_ENV_NAME)')
+
+# Read the conda environment name from the environment.yml file.
+ENV_DIR           := $(TOP_DIR)$(SEP)env
+CONDA_DIR         := $(ENV_DIR)$(SEP)conda
+DOWNLOADS_DIR     := $(ENV_DIR)$(SEP)downloads
+
+CONDA_INSTALLER   := Miniconda3-latest-$(OS_TYPE)-$(CPU_TYPE).$(OS_EXT)
+CONDA_PYTHON      := $(CONDA_DIR)$(SEP)$(PYTHON_BIN)
+CONDA_PKGS_DIR    := $(DOWNLOADS_DIR)$(SEP)conda-pkgs
+CONDA_PKGS_DEP    := $(CONDA_PKGS_DIR)$(SEP)urls.txt
+
+CONDA_ENVS_DIR    := $(CONDA_DIR)$(SEP)envs
+CONDA_ENV_PYTHON  := $(CONDA_ENVS_DIR)$(SEP)$(CONDA_ENV_NAME)$(SEP)$(PYTHON_BIN)
+IN_CONDA_ENV_BASE := $(CONDA_ACTIVATE) &&
+IN_CONDA_ENV      := $(CONDA_ACTIVATE) $(CONDA_ENV_NAME) &&
+
+CONDA_INSTALLER_DOWNLOAD := $(DOWNLOADS_DIR)$(SEP)$(CONDA_INSTALLER)
+
+CONDA_ALWAYS_YES  := 1
+export CONDA_ALWAYS_YES
+
+# Check spaces are not found in important locations
+NULL_STRING :=
+SPACE := $(NULL_STRING) $(NULL_STRING)
+ifneq ($(CONDA_ENV_NAME),$(subst $(SPACE),?,$(CONDA_ENV_NAME)))
+  $(error "Space not allowed in conda environment name: '$(SPACE)' '$(CONDA_ENV_NAME)' '$(subst $(SPACE),?,$(CONDA_ENV_NAME))'")
+endif
+ifneq ($(TOP_DIR),$(subst $(SPACE),?,$(TOP_DIR)))
+  $(error "Spaces are not allowed in conda directory path: '$(TOP_DIR)'")
+endif
+
+# Rules to download and setup conda
 $(ENV_DIR): | $(DOWNLOADS_DIR)
-	mkdir -p $(ENV_DIR)
+	$(MKDIR) "$(ENV_DIR)"
 
 $(DOWNLOADS_DIR):
-	mkdir -p $(DOWNLOADS_DIR)
+	$(MKDIR) "$(DOWNLOADS_DIR)"
 
-$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh: | $(DOWNLOADS_DIR)
-	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh -O $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
-	chmod a+x $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
+ifeq ($(OS_TYPE),Windows)
+$(CONDA_INSTALLER_DOWNLOAD): | $(DOWNLOADS_DIR)
+	$(WGET) https://repo.anaconda.com/miniconda/$(CONDA_INSTALLER) -O $(CONDA_INSTALLER_DOWNLOAD) 2>&1
+else
+$(CONDA_INSTALLER_DOWNLOAD): | $(DOWNLOADS_DIR)
+	$(WGET) https://repo.anaconda.com/miniconda/$(CONDA_INSTALLER) -O $(CONDA_INSTALLER_DOWNLOAD) 2>&1 | $(CAT)
+endif
 
 $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add pkgs_dirs $(CONDA_PKGS_DIR)
+	$(MKDIR) "$(CONDA_PKGS_DIR)"
+	$(TOUCH) "$(CONDA_PKGS_DEP)"
 
-$(CONDA_PYTHON): $(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh
-	$(DOWNLOADS_DIR)/Miniconda3-latest-$(OS_FLAG)-$(CPU_FLAG).sh -p $(CONDA_DIR) -b -f
-	touch $(CONDA_PYTHON)
+ifeq ($(OS_TYPE),Windows)
+$(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
+	cmd.exe /c start "" /WAIT  $(CONDA_INSTALLER_DOWNLOAD) /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /NoScripts=1 /S /D=$(CONDA_DIR)
+	$(TOUCH) "$(CONDA_PYTHON)"
+else
+$(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
+	chmod a+x $(CONDA_INSTALLER_DOWNLOAD)
+	$(CONDA_INSTALLER_DOWNLOAD) -p $(CONDA_DIR) -b -f
+	$(TOUCH) "$(CONDA_PYTHON)"
+endif
 
-$(CONDA_DIR)/envs: $(CONDA_PYTHON)
-	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_DIR)/envs
+$(CONDA_ENVS_DIR): $(CONDA_PYTHON)
+	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_ENVS_DIR)
+	$(MKDIR) "$(CONDA_ENVS_DIR)"
 
-$(CONDA_ENV_PYTHON): $(ENVIRONMENT_FILE) $(REQUIREMENTS_FILE) | $(CONDA_PYTHON) $(CONDA_DIR)/envs $(CONDA_PKGS_DEP)
+$(CONDA_ENV_PYTHON): $(ENVIRONMENT_FILE) $(REQUIREMENTS_FILE) | $(CONDA_PYTHON) $(CONDA_PKGS_DEP) $(CONDA_ENVS_DIR)
 	$(IN_CONDA_ENV_BASE) conda env update --name $(CONDA_ENV_NAME) --file $(ENVIRONMENT_FILE)
-	touch $(CONDA_ENV_PYTHON)
+	$(TOUCH) "$(CONDA_ENV_PYTHON)"
 
 env: $(CONDA_ENV_PYTHON)
 	$(IN_CONDA_ENV) conda info
@@ -120,9 +150,13 @@ dist-clean:
 
 FILTER_TOP = sed -e's@$(TOP_DIR)/@$$TOP_DIR/@'
 env-info:
-	@echo "             Top level directory is: '$(TOP_DIR)'"
+	@echo "               Currently running on: '$(OS_TYPE) ($(CPU_TYPE))'"
+	@echo
+	@echo "         Conda environment is named: '$(CONDA_ENV_NAME)'"
+	@echo "   Conda Env Top level directory is: '$(TOP_DIR)'"
+	@echo "         Git top level directory is: '$$(git rev-parse --show-toplevel)'"
 	@echo "              The version number is: '$$(git describe)'"
-	@echo "            Git repository is using: $$(du -h -s $(TOP_DIR)/.git | sed -e's/\s.*//')" \
+	@echo "            Git repository is using: $$(du -h -s $$(git rev-parse --show-toplevel)/.git | sed -e's/\s.*//')" \
 		| $(FILTER_TOP)
 	@echo
 	@echo "     Environment setup directory is: '$(ENV_DIR)'" \
