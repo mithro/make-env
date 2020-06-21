@@ -1,3 +1,31 @@
+# Copyright (C) 2020  SymbiFlow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
+<#
+.SYNOPSIS
+    Downloads a file if it doesn't exist.
+
+.PARAMETER url
+    URL of the file to be download downloaded.
+
+.PARAMETER o
+    The value '-O'
+
+.PARAMETER output
+    The output file to downloading into.
+
+.EXAMPLE
+    Make the C:\random\test123 file
+    PS C:\> wget https://example.com/file.zip C:\random\file.zip
+
+.NOTES
+    Author: SymbiFlow Authors
+    License: ISC
+#>
 $url=$args[0]
 $o=$args[1]
 $output=$args[2]
