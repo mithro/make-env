@@ -1,4 +1,4 @@
-name: conda-env
+name: make-env
 channels:
   - symbiflow
 dependencies:

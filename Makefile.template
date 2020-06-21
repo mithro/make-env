@@ -17,7 +17,7 @@ REQUIREMENTS_FILE := requirements.txt
 # https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 ENVIRONMENT_FILE := environment.yml
 
-include third_party/conda-env-make/conda.mk
+include third_party/make-env/conda.mk
 
 # Example make target which runs commands inside the conda environment.
 test-command: | $(CONDA_ENV_PYTHON)

@@ -1,4 +1,4 @@
-# conda environment Makefile
+# Makefile for create (conda) environments
 
 ![Build Status](https://travis-ci.org/SymbiFlow/make-env.svg?branch=master)
 ![License](https://img.shields.io/github/license/SymbiFlow/make-env.svg)
@@ -8,11 +8,11 @@ to run commands inside.
 
 # Using
 
-## Step 1 - Add conda-make-env to your repository
+## Step 1 - Add make-env to your repository
 
 ### Option 1a -- git submodules
 
-The [`conda-make-env`](https://github.com/SymbiFlow/conda-make-env) git
+The [`make-env`](https://github.com/SymbiFlow/make-env) git
 repository can be added as a
 [`git submodule`](https://git-scm.com/book/en/v2/Git-Tools-Submodules) of your
 own git repository.
@@ -20,7 +20,7 @@ own git repository.
 #### Adding using `git submodule`
 
 ```bash
-git submodule add https://github.com/SymbiFlow/conda-make-env.git third_party/conda-make-env
+git submodule add https://github.com/SymbiFlow/make-env.git third_party/make-env
 ```
 
 #### Updating using `git submodule`
@@ -35,7 +35,7 @@ pull request every time the upstream module moves forward.
 
 ### Option 1b -- `git subtrees`
 
-The [`conda-make-env`](https://github.com/SymbiFlow/conda-make-env) git
+The [`make-env`](https://github.com/SymbiFlow/make-env) git
 repository can be directly imported into your repository using
 [`git subtree`](https://www.atlassian.com/git/tutorials/git-subtree).
 
