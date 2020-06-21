@@ -3,8 +3,8 @@
 ![Build Status](https://travis-ci.org/SymbiFlow/make-env.svg?branch=master)
 ![License](https://img.shields.io/github/license/SymbiFlow/make-env.svg)
 
-This repository contains a Makefile to make it easy to set up conda environment
-to run commands inside.
+This repository contains a Makefile to make it easy to set up a conda
+environment and then run commands inside the environment.
 
 # Using
 
