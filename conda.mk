@@ -111,7 +111,7 @@ $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 
 ifeq ($(OS_TYPE),Windows)
 $(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
-	cmd.exe /c start "" /WAIT  $(CONDA_INSTALLER_DOWNLOAD) /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegister=1 /NoScripts=1 /S /D=$(CONDA_DIR)
+	cmd.exe /c start "" /WAIT  $(CONDA_INSTALLER_DOWNLOAD) /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /NoScripts=1 /S /D=$(CONDA_DIR)
 	$(TOUCH) "$(CONDA_PYTHON)"
 else
 $(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
