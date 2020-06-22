@@ -3,5 +3,6 @@ channels:
   - symbiflow
 dependencies:
   - python
+  - pip
   - pip:
     - -r file:requirements.txt
