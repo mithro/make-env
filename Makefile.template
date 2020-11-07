@@ -20,6 +20,10 @@ ENVIRONMENT_FILE := environment.yml
 include third_party/make-env/conda.mk
 
 # Example make target which runs commands inside the conda environment.
-test-command: | $(CONDA_ENV_PYTHON)
+example-command: | $(CONDA_ENV_PYTHON)
 	$(IN_CONDA_ENV) echo "Python is $$(which python)"
 	$(IN_CONDA_ENV) python --version
+
+# Check that no system packages are found in the environment.
+test-command: | $(CONDA_ENV_PYTHON)
+	$(IN_CONDA_ENV) python -c "import sys; assert all('/usr' not in p for p in sys.path), sys.path; print(sys.path)"

@@ -66,6 +66,7 @@ DOWNLOADS_DIR     := $(ENV_DIR)$(SEP)downloads
 
 CONDA_INSTALLER   := Miniconda3-latest-$(OS_TYPE)-$(CPU_TYPE).$(OS_EXT)
 CONDA_PYTHON      := $(CONDA_DIR)$(SEP)$(PYTHON_BIN)
+CONDA_PYVENV      := $(CONDA_DIR)$(SEP)pyvenv.cfg
 CONDA_PKGS_DIR    := $(DOWNLOADS_DIR)$(SEP)conda-pkgs
 CONDA_PKGS_DEP    := $(CONDA_PKGS_DIR)$(SEP)urls.txt
 
@@ -78,6 +79,10 @@ CONDA_INSTALLER_DOWNLOAD := $(DOWNLOADS_DIR)$(SEP)$(CONDA_INSTALLER)
 
 CONDA_ALWAYS_YES  := 1
 export CONDA_ALWAYS_YES
+
+# Force ignoring a user's Python site.py config.
+PYTHONNOUSERSITE  := 1
+export PYTHONNOUSERSITE
 
 # Check spaces are not found in important locations
 NULL_STRING :=
@@ -120,11 +125,14 @@ $(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
 	$(TOUCH) "$(CONDA_PYTHON)"
 endif
 
+$(CONDA_PYVENV): $(CONDA_PYTHON) $(MAKE_DIR)/conda.mk
+	echo "include-system-site-packages=false" >> $(CONDA_PYVENV)
+
 $(CONDA_ENVS_DIR): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_ENVS_DIR)
 	$(MKDIR) "$(CONDA_ENVS_DIR)"
 
-$(CONDA_ENV_PYTHON): $(ENVIRONMENT_FILE) $(REQUIREMENTS_FILE) | $(CONDA_PYTHON) $(CONDA_PKGS_DEP) $(CONDA_ENVS_DIR)
+$(CONDA_ENV_PYTHON): $(ENVIRONMENT_FILE) $(REQUIREMENTS_FILE) | $(CONDA_PYTHON) $(CONDA_PKGS_DEP) $(CONDA_ENVS_DIR) $(CONDA_PYVENV)
 	$(IN_CONDA_ENV_BASE) conda env update --name $(CONDA_ENV_NAME) --file $(ENVIRONMENT_FILE)
 	$(TOUCH) "$(CONDA_ENV_PYTHON)"
 
