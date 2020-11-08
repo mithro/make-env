@@ -1,0 +1,43 @@
+# Copyright (C) 2020  SymbiFlow Authors.
+#
+# Use of this source code is governed by a ISC-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/ISC
+#
+# SPDX-License-Identifier: ISC
+
+name: 'test'
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  test:
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [ ubuntu, windows, macos ]
+    runs-on: ${{ matrix.os }}-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+    - name: Configure git
+      shell: bash
+      run: |
+        git config --global core.autocrlf input
+        git config --global core.symlinks true
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Make env
+      run: |
+        cd test
+        make env
+        make env-info
