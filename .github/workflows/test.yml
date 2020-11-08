@@ -40,7 +40,7 @@ jobs:
       run: |
         cd test
         make env
-        make env-info
+        make info
 
     - name: example
       run: |
@@ -50,4 +50,4 @@ jobs:
     - name: test
       run: |
         cd test
-        make test-command
+        make test-command || make -d test-command

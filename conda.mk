@@ -8,6 +8,9 @@
 
 .SUFFIXES:
 
+ENV := conda
+UENV := CONDA
+
 MAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 SHELL := bash
@@ -150,11 +153,6 @@ env:: $(CONDA_ENV_PYTHON)
 
 .PHONY: env
 
-enter: $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) bash
-
-.PHONY: enter
-
 clean::
 	rm -rf $(CONDA_DIR)
 
@@ -167,6 +165,8 @@ dist-clean::
 
 FILTER_TOP = sed -e's@$(TOP_DIR)/@$$TOP_DIR/@'
 env-info:
+	@echo
+	@echo "                         Using conda environment."
 	@echo "               Currently running on: '$(OS_TYPE) ($(CPU_TYPE))'"
 	@echo
 	@echo "         Conda environment is named: '$(CONDA_ENV_NAME)'"
