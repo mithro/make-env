@@ -93,5 +93,3 @@ TOUCH := touch
 MKDIR := mkdir -p
 WGET  := wget
 endif
-
-$(info OS_TYPE=$(OS_TYPE) CPU_TYPE=$(CPU_TYPE))

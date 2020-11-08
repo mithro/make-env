@@ -57,8 +57,6 @@ endif
 
 CONDA_ENV_NAME    := $(strip $(patsubst name:%,,$(CONDA_ENV_NAME_LINE)))
 
-$(info '$(CONDA_ENV_NAME_LINE)' '$(CONDA_ENV_NAME)')
-
 # Read the conda environment name from the environment.yml file.
 ENV_DIR           := $(TOP_DIR)$(SEP)env
 CONDA_DIR         := $(ENV_DIR)$(SEP)conda
