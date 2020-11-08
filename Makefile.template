@@ -26,4 +26,4 @@ example-command: | $(CONDA_ENV_PYTHON)
 
 # Check that no system packages are found in the environment.
 test-command: | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) python -c "import sys; assert all('/usr' not in p for p in sys.path), sys.path; print(sys.path)"
+	$(IN_CONDA_ENV) python check.py
