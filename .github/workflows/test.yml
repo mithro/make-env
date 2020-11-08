@@ -20,11 +20,18 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        os: [ ubuntu, windows, macos ]
-    runs-on: ${{ matrix.os }}-latest
+        os: [
+          { runs: ubuntu,  type: Linux },
+          { runs: windows, type: Windows },
+          { runs: macos,   type: MacOSX }
+        ]
+    runs-on: ${{ matrix.os.runs }}-latest
     defaults:
       run:
         shell: bash
+    env:
+      OS_TYPE: ${{ matrix.os.type }}
+      DETECTED_OS: ${{ matrix.os.type }}
     steps:
 
     - name: Configure git
