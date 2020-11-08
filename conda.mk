@@ -125,8 +125,13 @@ $(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
 	$(TOUCH) "$(CONDA_PYTHON)"
 endif
 
+# FIXME: Why does this break on Windows?
+ifeq ($(OS_TYPE),Windows)
+CONDA_PYVENV := $(CONDA_PYTHON)
+else
 $(CONDA_PYVENV): $(CONDA_PYTHON) $(MAKE_DIR)/conda.mk
 	echo "include-system-site-packages=false" >> $(CONDA_PYVENV)
+endif
 
 $(CONDA_ENVS_DIR): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_ENVS_DIR)
