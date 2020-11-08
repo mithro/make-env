@@ -47,12 +47,18 @@ endif
 ifeq (,$(REQUIREMENTS_FILE))
 $(error "Set REQUIREMENTS_FILE value before including 'conda.mk'.")
 else
-REQUIREMENTS_FILE := $(abspath $(TOP_DIR)$(SEP)$(REQUIREMENTS_FILE))
+REQUIREMENTS_FILE := $(abspath $(REQUIREMENTS_FILE))
+endif
+ifeq (,$(wildcard $(REQUIREMENTS_FILE)))
+$(error "REQUIREMENTS_FILE ($(REQUIREMENTS_FILE)) does not exist!?")
 endif
 
 ifeq (,$(ENVIRONMENT_FILE))
 $(error "Set ENVIRONMENT_FILE value before including 'conda.mk'.")
-ENVIRONMENT_FILE := $(abspath $(TOP_DIR)$(SEP)$(ENVIRONMENT_FILE))
+ENVIRONMENT_FILE := $(abspath $(ENVIRONMENT_FILE))
+endif
+ifeq (,$(wildcard $(ENVIRONMENT_FILE)))
+$(error "ENVIRONMENT_FILE ($(ENVIRONMENT_FILE)) does not exist!?")
 endif
 
 CONDA_ENV_NAME    := $(strip $(patsubst name:%,,$(CONDA_ENV_NAME_LINE)))
