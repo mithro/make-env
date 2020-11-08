@@ -36,8 +36,18 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Make env
+    - name: make env
       run: |
         cd test
         make env
         make env-info
+
+    - name: example
+      run: |
+        cd test
+        make example-command
+
+    - name: test
+      run: |
+        cd test
+        make test-command
