@@ -26,7 +26,9 @@ $(TOP_DIR)/third_party/make-env/conda.mk: $(TOP_DIR)/.gitmodules
 
 # Example make target which runs commands inside the conda environment.
 example-command: | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) echo "Python is $$(which python)"
+ifneq ($(OS_TYPE),Windows)
+	$(IN_CONDA_ENV) PYBIN=$$(which python3) && echo "Python is $$PYBIN"
+endif
 	$(IN_CONDA_ENV) python --version
 
 # Check that no system packages are found in the environment.
