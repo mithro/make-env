@@ -12,8 +12,37 @@ on:
   push:
   pull_request:
 
-jobs:
+shared-steps:
+    .: &step-install-apt
+      name: Install dependencies
+      run: |
+        apt update -qq
+        apt install -y make wget git
+    .: &step-checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
+    .: &step-make-env
+      name: Make env
+      run: |
+        cd test
+        make env
+        make env-info
+
+    .: &step-make-example-command
+      name: Make example-command
+      run: |
+        cd test
+        make example-command
+
+    .: &step-make-test-command
+      name: Make test-command
+      run: |
+        cd test
+        make test-command
+
+jobs:
 
   test:
     strategy:
@@ -33,29 +62,13 @@ jobs:
         git config --global core.autocrlf input
         git config --global core.symlinks true
 
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    - *step-checkout
+    - *step-make-env
+    - *step-make-example-command
+    - *step-make-test-command
 
-    - name: Make env
-      run: |
-        cd test
-        make env
-        make env-info
-
-    - name: Make example-command
-      run: |
-        cd test
-        make example-command
-
-    - name: Make test-command
-      run: |
-        cd test
-        make test-command
-
-
-# https://www.debian.org/releases/
-# http://releases.ubuntu.com/
+# Debian should test on all stable/testing/unstable
+# See https://www.debian.org/releases/
   debian:
     runs-on: ubuntu-latest
     strategy:
@@ -66,6 +79,25 @@ jobs:
           - debian:buster
           - debian:bullseye
           - debian:sid
+    container: ${{ matrix.os }}
+    steps:
+    - *step-install-apt
+    - *step-checkout
+    - *step-make-env
+    - *step-make-example-command
+    - *step-make-test-command
+
+# Ubuntu should test on;
+#  - On all the LTS versions
+#  - The latest version of Ubuntu
+# See http://releases.ubuntu.com/
+  ubuntu:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os:
           - ubuntu:14.04
           - ubuntu:16.04
           - ubuntu:18.04
@@ -73,33 +105,15 @@ jobs:
           - ubuntu:20.10
     container: ${{ matrix.os }}
     steps:
-
-    - name: Install dependencies
-      run: |
-        apt update -qq
-        apt install -y make wget git
-
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
-    - name: Make env
-      run: |
-        cd test
-        make env
-        make env-info
-
-    - name: Make example-command
-      run: |
-        cd test
-        make example-command
-
-    - name: Make test-command
-      run: |
-        cd test
-        make test-command
+    - *step-install-apt
+    - *step-checkout
+    - *step-make-env
+    - *step-make-example-command
+    - *step-make-test-command
 
 
+# Fedora should test on;
+#  - FIXME: Figure out a good policy
 # https://fedoraproject.org/wiki/Releases
   fedora:
     runs-on: ubuntu-latest
@@ -112,34 +126,19 @@ jobs:
           - 33
           - 34
     container: fedora:${{ matrix.os }}
-    steps:
 
+    steps:
     - name: Install dependencies
       run: |
         dnf update -y
         dnf install -y make wget git which
 
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    - *step-checkout
+    - *step-make-env
+    - *step-make-example-command
+    - *step-make-test-command
 
-    - name: Make env
-      run: |
-        cd test
-        make env
-        make env-info
-
-    - name: Make example-command
-      run: |
-        cd test
-        make example-command
-
-    - name: Make test-command
-      run: |
-        cd test
-        make test-command
-
-
+# Test on the LTS versions of CentOS
   centos:
     runs-on: ubuntu-latest
     strategy:
@@ -157,27 +156,12 @@ jobs:
         yum update -y
         yum install -y make wget git which
 
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    - *step-checkout
+    - *step-make-env
+    - *step-make-example-command
+    - *step-make-test-command
 
-    - name: Make env
-      run: |
-        cd test
-        make env
-        make env-info
-
-    - name: Make example-command
-      run: |
-        cd test
-        make example-command
-
-    - name: Make test-command
-      run: |
-        cd test
-        make test-command
-
-
+# Test on the latest version or archlinux
   archlinux:
     runs-on: ubuntu-latest
     container: archlinux
@@ -188,22 +172,7 @@ jobs:
         pacman -Syu --noconfirm
         pacman -S make wget git which --noconfirm
 
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
-    - name: Make env
-      run: |
-        cd test
-        make env
-        make env-info
-
-    - name: Make example-command
-      run: |
-        cd test
-        make example-command
-
-    - name: Make test-command
-      run: |
-        cd test
-        make test-command
+    - *step-checkout
+    - *step-make-env
+    - *step-make-example-command
+    - *step-make-test-command
