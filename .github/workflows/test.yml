@@ -63,14 +63,19 @@ jobs:
       max-parallel: 3
       matrix:
         os:
-          - debian:buster
-          - debian:bullseye
-          - debian:sid
-          - ubuntu:14.04
-          - ubuntu:16.04
-          - ubuntu:18.04
-          - ubuntu:20.04
-          - ubuntu:20.10
+          - debian:buster   # Debian 10  - old stable
+          - debian:bullseye # Debian 11  - stable
+          - debian:bookworm # Debian 12? - testing
+          - debian:sid      # Debian     - unstable
+          # Ubuntu Extended Security Maintenance (ESM)
+          - ubuntu:14.04    # Trusty Tahr
+          - ubuntu:16.04    # Xenial Xerus
+          # Ubuntu LTS Releases
+          - ubuntu:18.04    # Bionic Beaver
+          - ubuntu:20.04    # Focal Fossa
+          - ubuntu:22.04    # Jammy Jellyfish
+          # Ubuntu Interim Releases
+          - ubuntu:22.10    # Kinetic Kudu
     container: ${{ matrix.os }}
     steps:
 
