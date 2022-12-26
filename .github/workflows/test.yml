@@ -144,7 +144,8 @@ jobs:
         cd test
         make test-command
 
-
+# https://en.wikipedia.org/wiki/CentOS#CentOS_releases
+# https://www.centos.org/centos-stream/
   centos:
     runs-on: ubuntu-latest
     strategy:
@@ -153,8 +154,9 @@ jobs:
       matrix:
         os:
           - 7
-          - 8
-    container: centos:${{ matrix.os }}
+          - stream8
+          - stream9
+    container: quay.io/centos/centos:${{ matrix.os }}
     steps:
 
     - name: Install dependencies
