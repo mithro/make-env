@@ -156,7 +156,7 @@ jobs:
           - 7
           - stream8
           - stream9
-    container: centos:${{ matrix.os }}
+    container: quay.io/centos/centos:${{ matrix.os }}
     steps:
 
     - name: Install dependencies
