@@ -113,9 +113,10 @@ jobs:
       max-parallel: 3
       matrix:
         os:
-          - 32
-          - 33
-          - 34
+          - 36
+          - 37
+          - 38
+          - rawhide
     container: fedora:${{ matrix.os }}
     steps:
 
