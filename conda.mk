@@ -141,6 +141,9 @@ $(CONDA_ENVS_DIR): $(CONDA_PYTHON)
 	$(IN_CONDA_ENV_BASE) conda config --system --add envs_dirs $(CONDA_ENVS_DIR)
 	$(MKDIR) "$(CONDA_ENVS_DIR)"
 
+# Parallel executions of `conda config` create race condition and can corrupt files.
+.NOTPARALLEL: $(CONDA_ENV_PYTHON)
+
 $(CONDA_ENV_PYTHON): $(ENVIRONMENT_FILE) $(REQUIREMENTS_FILE) | $(CONDA_PYTHON) $(CONDA_PKGS_DEP) $(CONDA_ENVS_DIR) $(CONDA_PYVENV)
 	$(IN_CONDA_ENV_BASE) conda env update --name $(CONDA_ENV_NAME) --file $(ENVIRONMENT_FILE)
 	$(TOUCH) "$(CONDA_ENV_PYTHON)"
