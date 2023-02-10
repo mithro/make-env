@@ -37,7 +37,7 @@ ifeq ($(OS_TYPE),)
 
         # MingW windows
         ifeq ($(DETECTED_OS),MSYS)
-            OS_TYPE := Linux
+            OS_TYPE := Windows
         endif
 
         # Mac OS X
@@ -79,7 +79,7 @@ ifeq ($(CPU_TYPE),)
 $(error Unable to detect CPU_TYPE \(detected '$(DETECTED_CPU)'\) - run make with CPU_TYPE=x86)
 endif
 
-ifeq ($(OS_TYPE),Windows)
+ifeq ($(DETECTED_OS),Windows)
 MAKE_DIR := $(subst /,\,$(MAKE_DIR))
 SEP   := $(strip \ )
 CAT   := type
@@ -93,3 +93,7 @@ TOUCH := touch
 MKDIR := mkdir -p
 WGET  := wget
 endif
+
+$(info · OS_TYPE: $(OS_TYPE))
+$(info · DETECTED_OS: $(DETECTED_OS))
+$(info · CPU_TYPE: $(CPU_TYPE))

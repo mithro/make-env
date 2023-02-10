@@ -20,11 +20,18 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        os: [ ubuntu, windows, macos ]
-    runs-on: ${{ matrix.os }}-latest
+        os: [
+          { runs: ubuntu,  type: Linux },
+          { runs: windows, type: Windows },
+          { runs: macos,   type: MacOSX }
+        ]
+    runs-on: ${{ matrix.os.runs }}-latest
     defaults:
       run:
         shell: bash
+    env:
+      OS_TYPE: ${{ matrix.os.type }}
+      DETECTED_OS: ${{ matrix.os.type }}
     steps:
 
     - name: Configure git
@@ -199,6 +206,53 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+
+    - name: Make env
+      run: |
+        cd test
+        make env
+        make env-info
+
+    - name: Make example-command
+      run: |
+        cd test
+        make example-command
+
+    - name: Make test-command
+      run: |
+        cd test
+        make test-command
+
+
+  msys2:
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        msystem: [ MINGW32, MINGW64 ]
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+
+    - name: Configure git
+      shell: bash
+      run: |
+        git config --global core.autocrlf input
+        git config --global core.symlinks true
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        update: true
+        install: >
+          base-devel
+          git
 
     - name: Make env
       run: |

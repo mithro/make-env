@@ -29,7 +29,7 @@ endif
 
 include $(MAKE_DIR)/os.mk
 
-ifeq ($(OS_TYPE),Windows)
+ifeq ($(DETECTED_OS),Windows)
 TOP_DIR    := $(subst /,\,$(TOP_DIR))
 OS_EXT     := exe
 PYTHON_BIN := python.exe
@@ -42,6 +42,9 @@ PYTHON_BIN := bin/python
 SHELL      := bash
 CONDA_ENV_NAME_LINE := $(shell grep "name:" $(ENVIRONMENT_FILE))
 CONDA_ACTIVATE = source $(CONDA_DIR)/bin/activate
+endif
+ifeq ($(DETECTED_OS),MSYS)
+OS_EXT     := exe
 endif
 
 ifeq (,$(REQUIREMENTS_FILE))
@@ -105,7 +108,7 @@ $(ENV_DIR): | $(DOWNLOADS_DIR)
 $(DOWNLOADS_DIR):
 	$(MKDIR) "$(DOWNLOADS_DIR)"
 
-ifeq ($(OS_TYPE),Windows)
+ifeq ($(DETECTED_OS),Windows)
 $(CONDA_INSTALLER_DOWNLOAD): | $(DOWNLOADS_DIR)
 	$(WGET) https://repo.anaconda.com/miniconda/$(CONDA_INSTALLER) -O $(CONDA_INSTALLER_DOWNLOAD) 2>&1
 else
@@ -118,7 +121,7 @@ $(CONDA_PKGS_DEP): $(CONDA_PYTHON)
 	$(MKDIR) "$(CONDA_PKGS_DIR)"
 	$(TOUCH) "$(CONDA_PKGS_DEP)"
 
-ifeq ($(OS_TYPE),Windows)
+ifeq ($(DETECTED_OS),Windows)
 $(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
 	cmd.exe /c start "" /WAIT  $(CONDA_INSTALLER_DOWNLOAD) /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /NoScripts=1 /S /D=$(CONDA_DIR)
 	$(TOUCH) "$(CONDA_PYTHON)"
@@ -130,7 +133,7 @@ $(CONDA_PYTHON): $(CONDA_INSTALLER_DOWNLOAD)
 endif
 
 # FIXME: Why does this break on Windows?
-ifeq ($(OS_TYPE),Windows)
+ifeq ($(DETECTED_OS),Windows)
 CONDA_PYVENV := $(CONDA_PYTHON)
 else
 $(CONDA_PYVENV): $(CONDA_PYTHON) $(MAKE_DIR)/conda.mk
@@ -170,7 +173,7 @@ dist-clean::
 
 FILTER_TOP = sed -e's@$(TOP_DIR)/@$$TOP_DIR/@'
 env-info:
-	@echo "               Currently running on: '$(OS_TYPE) ($(CPU_TYPE))'"
+	@echo "               Currently running on: '$(DETECTED_OS) ($(CPU_TYPE))'"
 	@echo
 	@echo "         Conda environment is named: '$(CONDA_ENV_NAME)'"
 	@echo "   Conda Env Top level directory is: '$(TOP_DIR)'"
